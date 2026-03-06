@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import apiClient from '../api/axios'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
 
 const isLogin = ref(true)
 const email = ref('')
@@ -9,6 +10,7 @@ const password = ref('')
 const name = ref('')
 
 const errorMessage = ref('')
+const router = useRouter()
 
 const handleSubmit = async () => {
   errorMessage.value = ''
@@ -24,7 +26,7 @@ const handleSubmit = async () => {
 
       localStorage.setItem('token', token)
 
-      alert('Te-ai logat cu succes!')
+      router.push('/dashboard')
     } else {
       await apiClient.post('/users/register', {
         name: name.value,
