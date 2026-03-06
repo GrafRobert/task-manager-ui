@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import apiClient from '@/api/axios'
 import ProjectForm from '@/components/ProjectForm.vue'
 import TopNavbar from '@/components/TopNavbar.vue'
@@ -8,6 +9,11 @@ const projects = ref<any[]>([])
 const loading = ref(true)
 const errorMessage = ref('')
 const showModal = ref(false)
+const router = useRouter()
+
+const goToProject = (projectId: number) => {
+  router.push(`/project/${projectId}`)
+}
 
 const fetchProjects = async () => {
   try {
@@ -61,7 +67,7 @@ onMounted(() => {
           <p class="card-desc">{{ project.description || 'Fără descriere.' }}</p>
           <div class="card-footer">
             <span class="date">Creat: {{ new Date(project.created_at).toLocaleDateString() }}</span>
-            <button class="view-btn">Deschide →</button>
+            <button class="view-btn" @click="goToProject(project.id)">Deschide →</button>
           </div>
         </div>
       </div>

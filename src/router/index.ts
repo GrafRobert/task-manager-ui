@@ -16,6 +16,12 @@ const router = createRouter({
       name: 'dashboard',
       component: DashboardView,
     },
+
+    {
+      path: '/projects/:id',
+      name: 'project-workspace',
+      component: () => import('../views/ProjectWorkspaceView.vue'),
+    },
   ],
 })
 
