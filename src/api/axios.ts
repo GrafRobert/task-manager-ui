@@ -1,12 +1,12 @@
 import axios from 'axios'
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:3000/api',
+  baseURL: 'https://task-api-backend-36bi.onrender.com/api',
   headers: {
     'Content-Type': 'application/json',
   },
 })
-
+//'http://localhost:3000/api'
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token')
