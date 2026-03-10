@@ -22,6 +22,13 @@ const router = createRouter({
       name: 'project-workspace',
       component: () => import('../views/ProjectWorkspaceView.vue'),
     },
+
+    {
+      path: '/profiles',
+      name: 'profile',
+      component: () => import('../views/ProfileView.vue'),
+      meta: { requiresAuth: true },
+    },
   ],
 })
 

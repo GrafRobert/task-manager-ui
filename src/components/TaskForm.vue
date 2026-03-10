@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import apiClient from '../api/axios'
 
 const props = defineProps<{
@@ -10,7 +10,23 @@ const emit = defineEmits(['task-created', 'cancel'])
 
 const newTaskTitle = ref('')
 const newTaskDescription = ref('')
+const newTaskPriority = ref('MEDIUM')
+const newTaskAssignedTo = ref('')
+const members = ref<any[]>([])
 const isSubmitting = ref(false)
+
+const fetchMembers = async () => {
+  try {
+    const response = await apiClient.get(`/projects/${props.projectId}/members`)
+    members.value = response.data.members || []
+  } catch (error) {
+    console.error('Eroare la aducerea membrilor:', error)
+  }
+}
+
+onMounted(() => {
+  fetchMembers()
+})
 
 const createTask = async () => {
   if (!newTaskTitle.value) return
@@ -21,10 +37,15 @@ const createTask = async () => {
     await apiClient.post(`/projects/${props.projectId}/tasks`, {
       title: newTaskTitle.value,
       description: newTaskDescription.value,
+      priority: newTaskPriority.value,
+      assigned_to: newTaskAssignedTo.value || null,
     })
 
     newTaskTitle.value = ''
     newTaskDescription.value = ''
+    newTaskPriority.value = 'MEDIUM'
+    newTaskAssignedTo.value = ''
+
     emit('task-created')
   } catch (error) {
     console.error('Eroare la crearea task-ului:', error)
@@ -58,6 +79,27 @@ const createTask = async () => {
           placeholder="Detalii suplimentare..."
           rows="3"
         ></textarea>
+      </div>
+
+      <div class="input-row">
+        <div class="input-group half-width">
+          <label>Prioritate</label>
+          <select v-model="newTaskPriority">
+            <option value="LOW">Scazuta</option>
+            <option value="MEDIUM">Medie</option>
+            <option value="HIGH">Ridicata</option>
+          </select>
+        </div>
+
+        <div class="input-group half-width">
+          <label>Asignat lui</label>
+          <select v-model="newTaskAssignedTo">
+            <option value="">--Neasignat --</option>
+            <option v-for="member in members" :key="member.id" :value="member.id">
+              {{ member.name }} ({{ member.email }})
+            </option>
+          </select>
+        </div>
       </div>
 
       <div class="form-actions">
@@ -155,5 +197,25 @@ h3 {
 .create-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+.input-row {
+  display: flex;
+  gap: 1rem;
+}
+.half-width {
+  flex: 1;
+}
+select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-family: inherit;
+  background-color: white;
+}
+select:focus {
+  outline: none;
+  border-color: #42b883;
 }
 </style>

@@ -16,7 +16,7 @@ const handleLogout = () => {
     <div class="nav-left">
       <div class="logo">
         <span class="logo-icon">📋</span>
-        <span class="logo-text">Mini-project</span>
+        <span class="logo-text">Project-planner</span>
       </div>
     </div>
 
@@ -24,6 +24,8 @@ const handleLogout = () => {
       <button class="add-btn" @click="emit('open-new-project')" title="Creare Proiect Nou">
         +
       </button>
+
+      <RouterLink to="/profiles" class="profile-link" title="RPofilul meu"> 👤 Profil </RouterLink>
 
       <div class="divider"></div>
 
@@ -105,5 +107,22 @@ const handleLogout = () => {
 .logout-btn:hover {
   color: #ef4444;
   background-color: #fef2f2;
+}
+
+.profile-link {
+  text-decoration: none;
+  color: #475569;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.profile-link:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
 }
 </style>
