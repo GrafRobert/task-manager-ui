@@ -4,8 +4,9 @@ import { useRouter } from 'vue-router'
 import apiClient from '@/api/axios'
 import ProjectForm from '@/components/ProjectForm.vue'
 import TopNavbar from '@/components/TopNavbar.vue'
+import type { Project } from '@/types'
 
-const projects = ref<any[]>([])
+const projects = ref<Project[]>([])
 const loading = ref(true)
 const errorMessage = ref('')
 const showModal = ref(false)
@@ -51,7 +52,7 @@ const fetchProjects = async () => {
     const response = await apiClient.get('/projects')
 
     projects.value = response.data.projects
-  } catch (error: any) {
+  } catch (error) {
     console.error('Eroare la încărcarea proiectelor:', error)
     errorMessage.value = 'Nu am putut încărca proiectele.'
   } finally {

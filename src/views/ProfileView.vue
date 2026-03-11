@@ -3,19 +3,21 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import apiClient from '@/api/axios'
 import TopNavbar from '@/components/TopNavbar.vue'
+import type { User } from '@/types/index'
+import type { Project } from '@/types/index'
 
 const router = useRouter()
-const user = ref<any>(null)
+const user = ref<User | null>(null)
 const loading = ref(true)
 const errorMessage = ref('')
-const projects = ref<any[]>([])
+const projects = ref<Project[]>([])
 
 const fetchProjects = async () => {
   try {
     const response = await apiClient.get('/projects')
     projects.value = response.data.projects || []
   } catch (error) {
-    console.error('Eroare la aducerea proiectelor')
+    console.error('Eroare la aducerea proiectelor:', error)
   }
 }
 
@@ -26,10 +28,11 @@ const fetchProfile = async () => {
   try {
     const response = await apiClient.get('/users/profile')
     user.value = response.data.user
-  } catch (error: any) {
+  } catch (error) {
     console.error('Eroare la aducerea profilului:', error)
 
-    if (error.response?.status === 401) {
+    const err = error as { response?: { status: number } }
+    if (err.response?.status === 401) {
       alert('Sesiunea a expirat. Te rugăm să te loghezi din nou.')
       localStorage.removeItem('token')
       router.push('/')
@@ -41,8 +44,10 @@ const fetchProfile = async () => {
   }
 }
 
-const formatDate = (dateString: string) => {
+const formatDate = (dateString: string | undefined) => {
+  if (!dateString) return 'N/A'
   const date = new Date(dateString)
+  if (isNaN(date.getTime())) return 'N/A'
   return date.toLocaleDateString('ro-RO', {
     year: 'numeric',
     month: 'long',
@@ -77,20 +82,20 @@ onMounted(() => {
         <div v-else class="profile-card">
           <div class="profile-header">
             <div class="avatar">
-              {{ user.name.charAt(0).toUpperCase() }}
+              {{ user?.name.charAt(0).toUpperCase() }}
             </div>
-            <h2>{{ user.name }}</h2>
-            <span class="role-badge">{{ user.role }}</span>
+            <h2>{{ user?.name }}</h2>
+            <span class="role-badge">{{ user?.role }}</span>
           </div>
 
           <div class="profile-details">
             <div class="detail-group">
               <label>Email</label>
-              <p>📧 {{ user.email }}</p>
+              <p>📧 {{ user?.email }}</p>
             </div>
             <div class="detail-group">
               <label>Membru din</label>
-              <p>📅 {{ formatDate(user.created_at) }}</p>
+              <p>📅 {{ formatDate(user?.created_at) }}</p>
             </div>
           </div>
 

@@ -4,27 +4,30 @@ import { useRoute, useRouter } from 'vue-router'
 import TopNavbar from '@/components/TopNavbar.vue'
 import apiClient from '@/api/axios'
 import TaskForm from '@/components/TaskForm.vue'
+import type { Task } from '@/types'
+import type { ProjectMember } from '@/types'
 
 const route = useRoute()
 const router = useRouter()
 const projectId = route.params.id
 
-const tasks = ref<any[]>([])
+const tasks = ref<Task[]>([])
 const loading = ref(true)
 const showTaskModal = ref(false)
 
 const showMembersModal = ref(false)
 const newMemberEmail = ref('')
-const members = ref<any[]>([])
+const members = ref<ProjectMember[]>([])
 const isInviting = ref(false)
 
 const fetchTasks = async () => {
   try {
     const response = await apiClient.get(`/projects/${projectId}/tasks`)
     tasks.value = response.data.tasks || []
-  } catch (error: any) {
+  } catch (error) {
     console.error('Eroare la încărcarea task-urilor:', error)
-    if (error.response?.status === 401) {
+    const err = error as { response?: { status: number } }
+    if (err.response?.status === 401) {
       alert('Sesiunea a expirat. Te rugăm să te loghezi din nou.')
       localStorage.removeItem('token')
       router.push('/')
@@ -57,10 +60,11 @@ const inviteMember = async () => {
 
     await fetchMembers()
     alert('Coleg adăugat cu succes!')
-  } catch (error: any) {
+  } catch (error) {
     console.error('Eroare la invitație:', error)
-    if (error.response?.data?.error) {
-      alert(error.response.data.error)
+    const err = error as { response?: { status: number; data?: { error?: string } } }
+    if (err.response?.data?.error) {
+      alert(err.response.data.error)
     } else {
       alert('Eroare la adăugarea colegului.')
     }
@@ -69,7 +73,7 @@ const inviteMember = async () => {
   }
 }
 
-const startDrag = (evt: DragEvent, task: any) => {
+const startDrag = (evt: DragEvent, task: Task) => {
   if (evt.dataTransfer) {
     evt.dataTransfer.dropEffect = 'move'
     evt.dataTransfer.effectAllowed = 'move'
@@ -313,8 +317,8 @@ onMounted(() => {
           </div>
 
           <div class="members-list">
-            <div v-for="member in members" :key="member.id" class="member-item">
-              <span class="member-name">{{ member.name }} ({{ member.email }})</span>
+            <div v-for="member in members" :key="member.user_id" class="member-item">
+              <span class="member-name">{{ member.user?.id }} ({{ member.user?.email }})</span>
               <span class="member-role">{{
                 member.role === 'OWNER' ? '👑 Proprietar' : 'Membru'
               }}</span>

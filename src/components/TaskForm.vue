@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import apiClient from '../api/axios'
+import type { ProjectMember } from '@/types'
 
 const props = defineProps<{
   projectId: string | string[]
@@ -12,7 +13,7 @@ const newTaskTitle = ref('')
 const newTaskDescription = ref('')
 const newTaskPriority = ref('MEDIUM')
 const newTaskAssignedTo = ref('')
-const members = ref<any[]>([])
+const members = ref<ProjectMember[]>([])
 const isSubmitting = ref(false)
 
 const fetchMembers = async () => {
@@ -95,8 +96,8 @@ const createTask = async () => {
           <label>Asignat lui</label>
           <select v-model="newTaskAssignedTo">
             <option value="">--Neasignat --</option>
-            <option v-for="member in members" :key="member.id" :value="member.id">
-              {{ member.name }} ({{ member.email }})
+            <option v-for="member in members" :key="member.user_id" :value="member.user_id">
+              {{ member.user?.name }} ({{ member.user?.email }})
             </option>
           </select>
         </div>
