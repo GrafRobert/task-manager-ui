@@ -135,11 +135,54 @@ onMounted(() => {
 </template>
 
 <style scoped>
+/* --- FUNDALUL ANIMAT (Living Background) --- */
 .app-layout {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+  background-color: #f1f5f9;
+  position: relative;
+  overflow: hidden;
+  z-index: 0;
 }
 
+.app-layout::before,
+.app-layout::after {
+  content: '';
+  position: absolute;
+  width: 50vw;
+  height: 50vw;
+  border-radius: 50%;
+  z-index: -1;
+  filter: blur(120px);
+  opacity: 0.6;
+  animation: floatOrbs 15s infinite alternate ease-in-out;
+}
+
+.app-layout::before {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  top: -10%;
+  left: -10%;
+}
+
+.app-layout::after {
+  background: linear-gradient(135deg, #10b981, #f59e0b);
+  bottom: -10%;
+  right: -10%;
+  animation-delay: -7s;
+}
+
+@keyframes floatOrbs {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(15%, 10%) scale(1.2);
+  }
+  100% {
+    transform: translate(-10%, 15%) scale(0.9);
+  }
+}
+
+/* --- CONTINUTUL DASHBOARD-ULUI --- */
 .dashboard-content {
   max-width: 1400px;
   margin: 0 auto;
@@ -173,12 +216,16 @@ onMounted(() => {
   border: 1px solid #f87171;
 }
 
+/* --- STAREA FĂRĂ PROIECTE (Glassmorphism) --- */
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
-  background-color: rgba(255, 255, 255, 0.7);
+  /* Transparență și blur ca să se vadă norii prin ea */
+  background-color: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: 12px;
-  border: 2px dashed #cbd5e1;
+  border: 2px dashed rgba(203, 213, 225, 0.8);
 }
 
 .empty-icon {
@@ -200,34 +247,44 @@ onMounted(() => {
   font-size: 0.95rem;
 }
 
+/* --- GRILA DE CARDURI --- */
 .projects-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 2rem;
 }
 
+/* --- CARDURILE DE PROIECTE (Efect de Sticlă) --- */
 .project-card {
-  background: white;
+  /* Alb transparent pentru efectul de sticlă */
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
   padding: 1.75rem;
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  /* Margine albă, fină, care dă reflexia de sticlă */
+  border: 1px solid rgba(255, 255, 255, 0.8);
   box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.05),
-    0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    0 4px 6px -1px rgba(31, 38, 135, 0.05),
+    0 2px 4px -1px rgba(31, 38, 135, 0.03);
   display: flex;
   flex-direction: column;
   transition:
     transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.2s,
     border-color 0.2s;
 }
 
 .project-card:hover {
   transform: translateY(-4px);
+  /* Devine un pic mai alb când treci cu mouse-ul peste */
+  background: rgba(255, 255, 255, 0.85);
   box-shadow:
-    0 12px 20px -5px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  border-color: #cbd5e1;
+    0 12px 20px -5px rgba(31, 38, 135, 0.1),
+    0 4px 6px -2px rgba(31, 38, 135, 0.05);
+  border-color: #ffffff;
 }
 
 .card-header h3 {
@@ -238,7 +295,7 @@ onMounted(() => {
 }
 
 .card-desc {
-  color: #64748b;
+  color: #475569;
   font-size: 0.95rem;
   margin: 0 0 1.5rem 0;
   line-height: 1.6;
@@ -249,20 +306,20 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px dashed rgba(203, 213, 225, 0.7);
   padding-top: 1.25rem;
   margin-top: auto;
 }
 
 .date {
   font-size: 0.8rem;
-  color: #94a3b8;
-  font-weight: 500;
+  color: #64748b;
+  font-weight: 600;
 }
 
 .view-btn {
-  background: #eff6ff;
-  border: none;
+  background: rgba(239, 246, 255, 0.8);
+  border: 1px solid #bfdbfe;
   color: #2563eb;
   font-weight: 600;
   font-size: 0.95rem;
@@ -281,54 +338,19 @@ onMounted(() => {
   transform: translateX(4px);
 }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(15, 23, 42, 0.5);
-  backdrop-filter: blur(4px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: white;
-  padding: 2.5rem;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 500px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* --- STILURI PENTRU MODALUL DE ONBOARDING --- */
+/* --- MODAL PENTRU PROIECTE / ONBOARDING --- */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(5px); /* Efect modern de blur pe fundal */
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(6px);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999; /* Stă deasupra la absolut orice (inclusiv Navbar) */
+  z-index: 9999;
 }
 
 .modal-content {
@@ -339,7 +361,7 @@ onMounted(() => {
   max-width: 450px;
   text-align: center;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-  animation: popIn 0.3s ease-out; /* O mică animație la intrare */
+  animation: popIn 0.3s ease-out;
 }
 
 @keyframes popIn {

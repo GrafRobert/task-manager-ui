@@ -35,94 +35,124 @@ const handleLogout = () => {
 </template>
 
 <style scoped>
+/* --- NAVBAR PRINCIPAL (Efect de sticlă) --- */
 .top-navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: white;
-  height: 60px;
+
+  /* Magia Glassmorphism: Alb transparent + Blur puternic */
+  background-color: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+
+  height: 64px; /* O idee mai înalt pentru un aspect aerisit */
   padding: 0 2rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+
+  /* O margine de jos foarte fină și o umbră subtilă */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+
   position: sticky;
   top: 0;
-  z-index: 100; /* Stă mereu deasupra conținutului */
+  z-index: 100;
 }
 
+/* --- ZONA LOGO --- */
 .nav-left .logo {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   font-size: 1.25rem;
   font-weight: 800;
-  color: #1e293b;
+  color: #0f172a;
+  letter-spacing: -0.02em; /* Strânge puțin literele pentru un aspect de brand */
+  transition: opacity 0.2s;
+  cursor: pointer;
 }
 
+.nav-left .logo:hover {
+  opacity: 0.8;
+}
+
+/* --- ZONA DREAPTĂ (Meniul) --- */
 .nav-right {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-/* Butonul modern de + */
+/* --- BUTONUL DE ADAUGARE (+) --- */
 .add-btn {
-  background-color: #2563eb;
+  background: linear-gradient(135deg, #2563eb, #3b82f6); /* Gradient fin */
   color: white;
   border: none;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%; /* Îl face rotund */
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
   font-size: 1.5rem;
   line-height: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); /* Animație foarte fluidă */
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
 }
 
 .add-btn:hover {
-  background-color: #1d4ed8;
-  transform: scale(1.05); /* Se mărește puțin când pui mouse-ul pe el */
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 15px rgba(37, 99, 235, 0.4);
 }
 
-.divider {
-  width: 1px;
-  height: 24px;
-  background-color: #e2e8f0;
-  margin: 0 0.5rem;
+.add-btn:active {
+  transform: translateY(0) scale(0.95);
 }
 
-.logout-btn {
-  background: transparent;
-  border: none;
-  color: #64748b;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 4px;
-  transition: all 0.2s;
-}
-
-.logout-btn:hover {
-  color: #ef4444;
-  background-color: #fef2f2;
-}
-
+/* --- LINK-UL DE PROFIL --- */
 .profile-link {
   text-decoration: none;
   color: #475569;
   font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
+  background-color: transparent;
   transition: all 0.2s ease;
 }
 
 .profile-link:hover {
-  background-color: #f1f5f9;
+  /* Un fundal alb semitransparent la hover */
+  background-color: rgba(255, 255, 255, 0.8);
   color: #0f172a;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+/* --- LINIA DESPĂRȚITOARE --- */
+.divider {
+  width: 1px;
+  height: 24px;
+  background-color: rgba(203, 213, 225, 0.6); /* Mai transparentă */
+  margin: 0 0.25rem;
+}
+
+/* --- BUTONUL DE DECONECTARE --- */
+.logout-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.logout-btn:hover {
+  color: #ef4444;
+  /* Un roșu foarte pal și transparent */
+  background-color: rgba(254, 242, 242, 0.8);
 }
 </style>
