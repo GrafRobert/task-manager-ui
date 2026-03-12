@@ -21,7 +21,7 @@ export interface Task {
   id: number
   title: string
   description?: string
-  status: 'TODO' | 'IN_PROGRESS' | 'DONE' | string
+  status: 'TODO' | 'IN_PROGRESS' | 'TESTING' | 'DONE' | string
   priority: 'LOW' | 'MEDIUM' | 'HIGH' | string
   project_id: number
   created_at: string
@@ -36,6 +36,9 @@ export interface ProjectMember {
   user_id: number
   role: string
   added_at: string
+
+  name?: string
+  email?: string
 
   user?: User
 }

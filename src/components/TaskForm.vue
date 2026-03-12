@@ -97,7 +97,9 @@ const createTask = async () => {
           <select v-model="newTaskAssignedTo">
             <option value="">--Neasignat --</option>
             <option v-for="member in members" :key="member.user_id" :value="member.user_id">
-              {{ member.user?.name }} ({{ member.user?.email }})
+              {{ member.name || member.user?.name || 'Fără nume' }} ({{
+                member.email || member.user?.email || 'Fără email'
+              }})
             </option>
           </select>
         </div>

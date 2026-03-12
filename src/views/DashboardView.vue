@@ -278,7 +278,7 @@ onMounted(() => {
 .view-btn:hover {
   background: #dbeafe;
   color: #1d4ed8;
-  transform: translateX(3px);
+  transform: translateX(4px);
 }
 
 .modal-overlay {

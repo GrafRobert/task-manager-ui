@@ -126,6 +126,7 @@ const onTaskCreated = async () => {
 
 const todoTasks = computed(() => tasks.value.filter((task) => task.status === 'TODO'))
 const inProgressTasks = computed(() => tasks.value.filter((task) => task.status === 'IN_PROGRESS'))
+const testingTasks = computed(() => tasks.value.filter((task) => task.status === 'TESTING'))
 const doneTasks = computed(() => tasks.value.filter((task) => task.status === 'DONE'))
 
 onMounted(() => {
@@ -252,6 +253,54 @@ onMounted(() => {
 
         <div
           class="kanban-column"
+          @drop="onDrop($event, 'TESTING')"
+          @dragover.prevent
+          @dragenter.prevent
+        >
+          <div class="column-header testing-header">
+            <h3>
+              De testat <span>{{ testingTasks.length }}</span>
+            </h3>
+          </div>
+          <TransitionGroup name="task-anim" tag="div" class="task-list">
+            <div v-if="testingTasks.length === 0" class="empty-task" key="empty-test">
+              Trage un task aici.
+            </div>
+
+            <div
+              v-for="task in testingTasks"
+              :key="task.id"
+              class="task-card"
+              draggable="true"
+              @dragstart="startDrag($event, task)"
+            >
+              <div class="card-meta">
+                <span :class="['priority-badge', (task.priority || 'MEDIUM').toLowerCase()]">
+                  {{
+                    task.priority === 'HIGH'
+                      ? 'Ridicată'
+                      : task.priority === 'LOW'
+                        ? 'Scăzută'
+                        : 'Medie'
+                  }}
+                </span>
+                <button class="delete-task-btn" @click="deleteTask(task.id)" title="Sterge task">
+                  🗑️
+                </button>
+              </div>
+
+              <h4>{{ task.title }}</h4>
+              <p>{{ task.description }}</p>
+
+              <div class="card-footer" v-if="task.assigned_to">
+                <span class="assignee">👤 {{ task.assigned_to }}</span>
+              </div>
+            </div>
+          </TransitionGroup>
+        </div>
+
+        <div
+          class="kanban-column"
           @drop="onDrop($event, 'DONE')"
           @dragover.prevent
           @dragenter.prevent
@@ -318,7 +367,9 @@ onMounted(() => {
 
           <div class="members-list">
             <div v-for="member in members" :key="member.user_id" class="member-item">
-              <span class="member-name">{{ member.user?.id }} ({{ member.user?.email }})</span>
+              <span class="member-name"
+                >{{ member.name || 'Coleg' }} ({{ member.email || member.user?.email }})</span
+              >
               <span class="member-role">{{
                 member.role === 'OWNER' ? '👑 Proprietar' : 'Membru'
               }}</span>
@@ -343,9 +394,55 @@ onMounted(() => {
 </template>
 
 <style scoped>
+/* Containerul principal */
 .app-layout {
   min-height: 100vh;
-  background-color: #f1f5f9;
+  background-color: #f1f5f9; /* Culoarea de bază */
+  position: relative;
+  overflow: hidden; /* Nu lăsăm culorile să iasă din pagină */
+  z-index: 0;
+}
+
+/* Magia: Creăm 2 "nori" uriași de culoare care se mișcă */
+.app-layout::before,
+.app-layout::after {
+  content: '';
+  position: absolute;
+  width: 50vw;
+  height: 50vw;
+  border-radius: 50%;
+  z-index: -1; /* Îi punem în spatele aplicației */
+  filter: blur(120px); /* Asta îi face să pară ca un gradient foarte fin */
+  opacity: 0.6;
+  animation: floatOrbs 15s infinite alternate ease-in-out;
+}
+
+/* Norul 1: Albastru spre Mov (Stânga-Sus) */
+.app-layout::before {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  top: -10%;
+  left: -10%;
+}
+
+/* Norul 2: Verde spre Portocaliu (Dreapta-Jos) */
+.app-layout::after {
+  background: linear-gradient(135deg, #10b981, #f59e0b);
+  bottom: -10%;
+  right: -10%;
+  animation-delay: -7s; /* Îl facem să se miște asimetric față de primul */
+}
+
+/* Animația care le face să plutească "respire" pe ecran */
+@keyframes floatOrbs {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(15%, 10%) scale(1.2);
+  }
+  100% {
+    transform: translate(-10%, 15%) scale(0.9);
+  }
 }
 
 .workspace-content {
@@ -423,11 +520,22 @@ onMounted(() => {
 .kanban-column {
   flex: 1;
   min-width: 320px;
-  background-color: #e2e8f0;
-  border-radius: 10px;
+
+  /* AICI E SECRETUL: Alb cu 60% opacitate */
+  background-color: rgba(255, 255, 255, 0.6);
+
+  /* Asta încețoșează fundalul animat exact în spatele coloanei (Glassmorphism) */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  /* O margine foarte fină, albă, care dă senzația de sticlă */
+  border: 1px solid rgba(255, 255, 255, 0.8);
+
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 200px);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
 }
 
 .column-header {
@@ -463,6 +571,13 @@ onMounted(() => {
 
 .in-progress-header {
   border-top: 4px solid #3b82f6;
+}
+.testing-header {
+  border-top: 4px solid #f59e0b;
+}
+
+.done-header {
+  border-top: 4px solid #22c55e;
 }
 
 .done-header {
