@@ -6,10 +6,12 @@ import apiClient from '@/api/axios'
 import TaskForm from '@/components/TaskForm.vue'
 import type { Task } from '@/types'
 import type { ProjectMember } from '@/types'
+import type { User } from '../types'
 
 const route = useRoute()
 const router = useRouter()
 const projectId = route.params.id
+const currentUser = ref<User | null>(null)
 
 const tasks = ref<Task[]>([])
 const loading = ref(true)
@@ -89,6 +91,13 @@ const onDrop = async (evt: DragEvent, newStatus: string) => {
   const task = tasks.value.find((t) => t.id === taskId)
 
   if (task && task.status !== newStatus) {
+    if (newStatus === 'DONE') {
+      if (currentUser.value?.role !== 'Tester') {
+        alert('⛔ Acces interzis! Doar persoanele cu rolul de "Tester" pot finaliza un task.')
+        return
+      }
+    }
+
     const oldStatus = task.status
     task.status = newStatus
     try {
@@ -129,7 +138,17 @@ const inProgressTasks = computed(() => tasks.value.filter((task) => task.status 
 const testingTasks = computed(() => tasks.value.filter((task) => task.status === 'TESTING'))
 const doneTasks = computed(() => tasks.value.filter((task) => task.status === 'DONE'))
 
+const fetchCurrentUser = async () => {
+  try {
+    const response = await apiClient.get('/users/profile')
+    currentUser.value = response.data.user
+  } catch (error) {
+    console.error('Nu am putut aduce profilul utilizatorului.', error)
+  }
+}
+
 onMounted(() => {
+  fetchCurrentUser()
   fetchTasks()
   fetchMembers()
 })
@@ -873,5 +892,26 @@ onMounted(() => {
   opacity: 1;
   background-color: #fee2e2;
   transform: scale(1.1);
+}
+
+@media (max-width: 1024px) {
+  .kanban-board {
+    flex-direction: column;
+    align-items: stretch;
+    overflow-x: visible;
+
+    .kanban-column {
+      width: 100%;
+      min-width: auto;
+
+      max-height: none;
+      margin-bottom: 1rem;
+    }
+
+    .task-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+  }
 }
 </style>

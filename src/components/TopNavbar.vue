@@ -16,7 +16,7 @@ const handleLogout = () => {
     <div class="nav-left">
       <div class="logo">
         <span class="logo-icon">📋</span>
-        <span class="logo-text">Project-planner</span>
+        <span class="logo-text hide-on-mobile">Project-planner</span>
       </div>
     </div>
 
@@ -25,11 +25,17 @@ const handleLogout = () => {
         +
       </button>
 
-      <RouterLink to="/profiles" class="profile-link" title="RPofilul meu"> 👤 Profil </RouterLink>
+      <RouterLink to="/profiles" class="profile-link" title="Profilul meu">
+        <span class="icon">👤</span>
+        <span class="hide-on-mobile">Profil</span>
+      </RouterLink>
 
       <div class="divider"></div>
 
-      <button @click="handleLogout" class="logout-btn" title="Deconectare">Iesire</button>
+      <button @click="handleLogout" class="logout-btn" title="Deconectare">
+        <span class="hide-on-mobile">Iesire</span>
+        <span class="show-on-mobile" style="display: none">🚪</span>
+      </button>
     </div>
   </nav>
 </template>
@@ -46,7 +52,7 @@ const handleLogout = () => {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 
-  height: 64px; /* O idee mai înalt pentru un aspect aerisit */
+  height: 64px;
   padding: 0 2rem;
 
   /* O margine de jos foarte fină și o umbră subtilă */
@@ -66,7 +72,7 @@ const handleLogout = () => {
   font-size: 1.25rem;
   font-weight: 800;
   color: #0f172a;
-  letter-spacing: -0.02em; /* Strânge puțin literele pentru un aspect de brand */
+  letter-spacing: -0.02em;
   transition: opacity 0.2s;
   cursor: pointer;
 }
@@ -84,7 +90,7 @@ const handleLogout = () => {
 
 /* --- BUTONUL DE ADAUGARE (+) --- */
 .add-btn {
-  background: linear-gradient(135deg, #2563eb, #3b82f6); /* Gradient fin */
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
   color: white;
   border: none;
   width: 38px;
@@ -96,7 +102,7 @@ const handleLogout = () => {
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); /* Animație foarte fluidă */
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
 }
 
@@ -124,7 +130,6 @@ const handleLogout = () => {
 }
 
 .profile-link:hover {
-  /* Un fundal alb semitransparent la hover */
   background-color: rgba(255, 255, 255, 0.8);
   color: #0f172a;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
@@ -134,7 +139,7 @@ const handleLogout = () => {
 .divider {
   width: 1px;
   height: 24px;
-  background-color: rgba(203, 213, 225, 0.6); /* Mai transparentă */
+  background-color: rgba(203, 213, 225, 0.6);
   margin: 0 0.25rem;
 }
 
@@ -148,11 +153,50 @@ const handleLogout = () => {
   padding: 0.5rem 0.85rem;
   border-radius: 8px;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
 }
 
 .logout-btn:hover {
   color: #ef4444;
-  /* Un roșu foarte pal și transparent */
   background-color: rgba(254, 242, 242, 0.8);
+}
+
+/* =======================================================
+   MAGIA PENTRU TELEFOANE MOBILIE (Responsive Design)
+   ======================================================= */
+@media (max-width: 768px) {
+  .top-navbar {
+    padding: 0 1rem; /* Margini mai mici pe telefon */
+  }
+
+  /* Ascundem clasa textelor pe mobil */
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  /* Afișăm elementele care apar doar pe mobil (ex: ușa de la ieșire) */
+  .show-on-mobile {
+    display: inline-block !important;
+    font-size: 1.25rem; /* Facem ușa vizibilă */
+  }
+
+  /* Micșorăm un pic distanțele între butoane */
+  .nav-right {
+    gap: 0.5rem;
+  }
+
+  /* Butonul de plus un pic mai mic să încapă elegant */
+  .add-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 1.3rem;
+  }
+
+  /* Reducem padding-ul pentru că au mai rămas doar iconițele */
+  .profile-link,
+  .logout-btn {
+    padding: 0.4rem 0.5rem;
+  }
 }
 </style>
