@@ -26,7 +26,8 @@ export interface Task {
   project_id: number
   created_at: string
 
-  assigned_to?: string
+  assigned_to?: string | number | null
+  assignee_name?: string
 }
 
 //tabele de legatura

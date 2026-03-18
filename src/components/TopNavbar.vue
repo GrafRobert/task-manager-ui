@@ -41,13 +41,11 @@ const handleLogout = () => {
 </template>
 
 <style scoped>
-/* --- NAVBAR PRINCIPAL (Efect de sticlă) --- */
 .top-navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
 
-  /* Magia Glassmorphism: Alb transparent + Blur puternic */
   background-color: rgba(255, 255, 255, 0.65);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -55,7 +53,6 @@ const handleLogout = () => {
   height: 64px;
   padding: 0 2rem;
 
-  /* O margine de jos foarte fină și o umbră subtilă */
   border-bottom: 1px solid rgba(255, 255, 255, 0.8);
   box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
 
@@ -64,7 +61,6 @@ const handleLogout = () => {
   z-index: 100;
 }
 
-/* --- ZONA LOGO --- */
 .nav-left .logo {
   display: flex;
   align-items: center;
@@ -81,14 +77,12 @@ const handleLogout = () => {
   opacity: 0.8;
 }
 
-/* --- ZONA DREAPTĂ (Meniul) --- */
 .nav-right {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-/* --- BUTONUL DE ADAUGARE (+) --- */
 .add-btn {
   background: linear-gradient(135deg, #2563eb, #3b82f6);
   color: white;
@@ -115,7 +109,6 @@ const handleLogout = () => {
   transform: translateY(0) scale(0.95);
 }
 
-/* --- LINK-UL DE PROFIL --- */
 .profile-link {
   text-decoration: none;
   color: #475569;
@@ -135,7 +128,6 @@ const handleLogout = () => {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
-/* --- LINIA DESPĂRȚITOARE --- */
 .divider {
   width: 1px;
   height: 24px;
@@ -143,7 +135,6 @@ const handleLogout = () => {
   margin: 0 0.25rem;
 }
 
-/* --- BUTONUL DE DECONECTARE --- */
 .logout-btn {
   background: transparent;
   border: none;
@@ -162,38 +153,30 @@ const handleLogout = () => {
   background-color: rgba(254, 242, 242, 0.8);
 }
 
-/* =======================================================
-   MAGIA PENTRU TELEFOANE MOBILIE (Responsive Design)
-   ======================================================= */
 @media (max-width: 768px) {
   .top-navbar {
-    padding: 0 1rem; /* Margini mai mici pe telefon */
+    padding: 0 1rem;
   }
 
-  /* Ascundem clasa textelor pe mobil */
   .hide-on-mobile {
     display: none !important;
   }
 
-  /* Afișăm elementele care apar doar pe mobil (ex: ușa de la ieșire) */
   .show-on-mobile {
     display: inline-block !important;
-    font-size: 1.25rem; /* Facem ușa vizibilă */
+    font-size: 1.25rem;
   }
 
-  /* Micșorăm un pic distanțele între butoane */
   .nav-right {
     gap: 0.5rem;
   }
 
-  /* Butonul de plus un pic mai mic să încapă elegant */
   .add-btn {
     width: 32px;
     height: 32px;
     font-size: 1.3rem;
   }
 
-  /* Reducem padding-ul pentru că au mai rămas doar iconițele */
   .profile-link,
   .logout-btn {
     padding: 0.4rem 0.5rem;

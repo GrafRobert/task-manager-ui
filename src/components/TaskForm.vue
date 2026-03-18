@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import apiClient from '../api/axios'
-import type { ProjectMember } from '@/types'
+import type { ProjectMember, Task } from '@/types'
 
 const props = defineProps<{
   projectId: string | string[]
+  task?: Task | null
 }>()
 
-const emit = defineEmits(['task-created', 'cancel'])
+const emit = defineEmits(['saved', 'cancel'])
 
-const newTaskTitle = ref('')
-const newTaskDescription = ref('')
-const newTaskPriority = ref('MEDIUM')
-const newTaskAssignedTo = ref('')
+const taskTitle = ref(props.task?.title || '')
+const taskDescription = ref(props.task?.description || '')
+const taskPriority = ref(props.task?.priority || 'MEDIUM')
+const taskAssignedTo = ref(props.task?.assigned_to || '')
+
 const members = ref<ProjectMember[]>([])
 const isSubmitting = ref(false)
 
@@ -29,27 +31,29 @@ onMounted(() => {
   fetchMembers()
 })
 
-const createTask = async () => {
-  if (!newTaskTitle.value) return
+const saveTask = async () => {
+  if (!taskTitle.value) return
 
   isSubmitting.value = true
 
   try {
-    await apiClient.post(`/projects/${props.projectId}/tasks`, {
-      title: newTaskTitle.value,
-      description: newTaskDescription.value,
-      priority: newTaskPriority.value,
-      assigned_to: newTaskAssignedTo.value || null,
-    })
+    const payload = {
+      title: taskTitle.value,
+      description: taskDescription.value,
+      priority: taskPriority.value,
+      assigned_to: taskAssignedTo.value || null,
+      status: props.task?.status || 'TODO',
+    }
 
-    newTaskTitle.value = ''
-    newTaskDescription.value = ''
-    newTaskPriority.value = 'MEDIUM'
-    newTaskAssignedTo.value = ''
+    if (props.task?.id) {
+      await apiClient.patch(`/projects/${props.projectId}/tasks/${props.task.id}`, payload)
+    } else {
+      await apiClient.post(`/projects/${props.projectId}/tasks`, payload)
+    }
 
-    emit('task-created')
+    emit('saved')
   } catch (error) {
-    console.error('Eroare la crearea task-ului:', error)
+    console.error('Eroare la salvarea task-ului:', error)
     alert('A apărut o eroare la salvarea task-ului.')
   } finally {
     isSubmitting.value = false
@@ -59,24 +63,21 @@ const createTask = async () => {
 
 <template>
   <div class="form-container">
-    <h3>Adauga un Task Nou</h3>
-    <p class="subtitle">Descrie ce trebuie facut in acest task.</p>
+    <h3>{{ task ? 'Editează Task-ul' : 'Adaugă un Task Nou' }}</h3>
+    <p class="subtitle">
+      {{ task ? 'Modifică detaliile acestui task.' : 'Descrie ce trebuie făcut în acest task.' }}
+    </p>
 
-    <form @submit.prevent="createTask" class="project-form">
+    <form @submit.prevent="saveTask" class="project-form">
       <div class="input-group">
         <label>Titlu Task <span class="required">*</span></label>
-        <input
-          type="text"
-          v-model="newTaskTitle"
-          placeholder="Ex: Rezolva bug ul de login"
-          required
-        />
+        <input type="text" v-model="taskTitle" placeholder="Ex: Rezolva bug ul de login" required />
       </div>
 
       <div class="input-group">
         <label>Descriere</label>
         <textarea
-          v-model="newTaskDescription"
+          v-model="taskDescription"
           placeholder="Detalii suplimentare..."
           rows="3"
         ></textarea>
@@ -85,30 +86,34 @@ const createTask = async () => {
       <div class="input-row">
         <div class="input-group half-width">
           <label>Prioritate</label>
-          <select v-model="newTaskPriority">
-            <option value="LOW">Scazuta</option>
+          <select v-model="taskPriority">
+            <option value="LOW">Scăzută</option>
             <option value="MEDIUM">Medie</option>
-            <option value="HIGH">Ridicata</option>
+            <option value="HIGH">Ridicată</option>
           </select>
         </div>
 
         <div class="input-group half-width">
           <label>Asignat lui</label>
-          <select v-model="newTaskAssignedTo">
-            <option value="">--Neasignat --</option>
-            <option v-for="member in members" :key="member.user_id" :value="member.user_id">
-              {{ member.name || member.user?.name || 'Fără nume' }} ({{
-                member.email || member.user?.email || 'Fără email'
-              }})
+          <select v-model="taskAssignedTo">
+            <option value="">-- Neasignat --</option>
+
+            <option
+              v-for="member in members"
+              :key="member.user_id || member.id"
+              :value="member.user_id || member.id || member.user?.id"
+            >
+              {{ member.name || member.user?.name || 'Fără nume' }}
+              ({{ member.email || member.user?.email || 'Fără email' }})
             </option>
           </select>
         </div>
       </div>
 
       <div class="form-actions">
-        <button type="button" class="cancel-btn" @click="emit('cancel')">Anuleaza</button>
+        <button type="button" class="cancel-btn" @click="emit('cancel')">Anulează</button>
         <button type="submit" class="create-btn" :disabled="isSubmitting">
-          {{ isSubmitting ? 'Se salveaza...' : 'Creeaza Task' }}
+          {{ isSubmitting ? 'Se salvează...' : task ? 'Salvează Modificările' : 'Creează Task' }}
         </button>
       </div>
     </form>

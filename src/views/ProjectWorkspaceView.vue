@@ -17,10 +17,29 @@ const tasks = ref<Task[]>([])
 const loading = ref(true)
 const showTaskModal = ref(false)
 
+const selectedTask = ref<Task | null>(null)
+
 const showMembersModal = ref(false)
 const newMemberEmail = ref('')
 const members = ref<ProjectMember[]>([])
 const isInviting = ref(false)
+
+// --- FUNCȚII PENTRU MODALUL DE TASK-URI ---
+const openEditModal = (task: Task) => {
+  selectedTask.value = task
+  showTaskModal.value = true
+}
+
+const openNewTaskModal = () => {
+  selectedTask.value = null
+  showTaskModal.value = true
+}
+
+const closeTaskModal = () => {
+  showTaskModal.value = false
+  selectedTask.value = null
+}
+// ------------------------------------------
 
 const fetchTasks = async () => {
   try {
@@ -127,8 +146,8 @@ const deleteTask = async (taskId: number) => {
   }
 }
 
-const onTaskCreated = async () => {
-  showTaskModal.value = false
+const onTaskSaved = async () => {
+  closeTaskModal()
   loading.value = true
   await fetchTasks()
 }
@@ -156,7 +175,7 @@ onMounted(() => {
 
 <template>
   <div class="app-layout">
-    <TopNavbar @open-new-project="showTaskModal = true" />
+    <TopNavbar @open-new-project="openNewTaskModal" />
 
     <main class="workspace-content">
       <div class="header-actions">
@@ -167,7 +186,7 @@ onMounted(() => {
         <h1>Spațiul de lucru: Proiectul #{{ projectId }}</h1>
         <div class="header-buttons">
           <button class="team-btn" @click="showMembersModal = true">👥 Echipa</button>
-          <button class="add-task-btn" @click="showTaskModal = true">+ Task Nou</button>
+          <button class="add-task-btn" @click="openNewTaskModal">+ Task Nou</button>
         </div>
       </div>
 
@@ -207,16 +226,25 @@ onMounted(() => {
                         : 'Medie'
                   }}
                 </span>
-                <button class="delete-task-btn" @click="deleteTask(task.id)" title="Sterge task">
-                  🗑️
-                </button>
+                <div style="display: flex; gap: 0.25rem">
+                  <button
+                    class="delete-task-btn"
+                    @click="openEditModal(task)"
+                    title="Editeaza task"
+                  >
+                    ✏️
+                  </button>
+                  <button class="delete-task-btn" @click="deleteTask(task.id)" title="Sterge task">
+                    🗑️
+                  </button>
+                </div>
               </div>
 
               <h4>{{ task.title }}</h4>
               <p>{{ task.description }}</p>
 
-              <div class="card-footer" v-if="task.assigned_to">
-                <span class="assignee">👤 {{ task.assigned_to }}</span>
+              <div class="card-footer" v-if="task.assignee_name">
+                <span class="assignee">👤 {{ task.assignee_name }}</span>
               </div>
             </div>
           </TransitionGroup>
@@ -255,16 +283,25 @@ onMounted(() => {
                         : 'Medie'
                   }}
                 </span>
-                <button class="delete-task-btn" @click="deleteTask(task.id)" title="Sterge task">
-                  🗑️
-                </button>
+                <div style="display: flex; gap: 0.25rem">
+                  <button
+                    class="delete-task-btn"
+                    @click="openEditModal(task)"
+                    title="Editeaza task"
+                  >
+                    ✏️
+                  </button>
+                  <button class="delete-task-btn" @click="deleteTask(task.id)" title="Sterge task">
+                    🗑️
+                  </button>
+                </div>
               </div>
 
               <h4>{{ task.title }}</h4>
               <p>{{ task.description }}</p>
 
-              <div class="card-footer" v-if="task.assigned_to">
-                <span class="assignee">👤 {{ task.assigned_to }}</span>
+              <div class="card-footer" v-if="task.assignee_name">
+                <span class="assignee">👤 {{ task.assignee_name }}</span>
               </div>
             </div>
           </TransitionGroup>
@@ -303,16 +340,25 @@ onMounted(() => {
                         : 'Medie'
                   }}
                 </span>
-                <button class="delete-task-btn" @click="deleteTask(task.id)" title="Sterge task">
-                  🗑️
-                </button>
+                <div style="display: flex; gap: 0.25rem">
+                  <button
+                    class="delete-task-btn"
+                    @click="openEditModal(task)"
+                    title="Editeaza task"
+                  >
+                    ✏️
+                  </button>
+                  <button class="delete-task-btn" @click="deleteTask(task.id)" title="Sterge task">
+                    🗑️
+                  </button>
+                </div>
               </div>
 
               <h4>{{ task.title }}</h4>
               <p>{{ task.description }}</p>
 
-              <div class="card-footer" v-if="task.assigned_to">
-                <span class="assignee">👤 {{ task.assigned_to }}</span>
+              <div class="card-footer" v-if="task.assignee_name">
+                <span class="assignee">👤 {{ task.assignee_name }}</span>
               </div>
             </div>
           </TransitionGroup>
@@ -351,28 +397,38 @@ onMounted(() => {
                         : 'Medie'
                   }}
                 </span>
-                <button class="delete-task-btn" @click="deleteTask(task.id)" title="Sterge task">
-                  🗑️
-                </button>
+                <div style="display: flex; gap: 0.25rem">
+                  <button
+                    class="delete-task-btn"
+                    @click="openEditModal(task)"
+                    title="Editeaza task"
+                  >
+                    ✏️
+                  </button>
+                  <button class="delete-task-btn" @click="deleteTask(task.id)" title="Sterge task">
+                    🗑️
+                  </button>
+                </div>
               </div>
 
               <h4>{{ task.title }}</h4>
               <p>{{ task.description }}</p>
 
-              <div class="card-footer" v-if="task.assigned_to">
-                <span class="assignee">👤 {{ task.assigned_to }}</span>
+              <div class="card-footer" v-if="task.assignee_name">
+                <span class="assignee">👤 {{ task.assignee_name }}</span>
               </div>
             </div>
           </TransitionGroup>
         </div>
       </div>
 
-      <div v-if="showTaskModal" class="modal-overlay" @click.self="showTaskModal = false">
+      <div v-if="showTaskModal" class="modal-overlay" @click.self="closeTaskModal">
         <div class="modal-content">
           <TaskForm
             :projectId="projectId as string"
-            @task-created="onTaskCreated"
-            @cancel="showTaskModal = false"
+            :task="selectedTask"
+            @saved="onTaskSaved"
+            @cancel="closeTaskModal"
           />
         </div>
       </div>
@@ -593,10 +649,6 @@ onMounted(() => {
 }
 .testing-header {
   border-top: 4px solid #f59e0b;
-}
-
-.done-header {
-  border-top: 4px solid #22c55e;
 }
 
 .done-header {
@@ -899,19 +951,18 @@ onMounted(() => {
     flex-direction: column;
     align-items: stretch;
     overflow-x: visible;
+  }
 
-    .kanban-column {
-      width: 100%;
-      min-width: auto;
+  .kanban-column {
+    width: 100%;
+    min-width: auto;
+    max-height: none;
+    margin-bottom: 1rem;
+  }
 
-      max-height: none;
-      margin-bottom: 1rem;
-    }
-
-    .task-list {
-      max-height: 400px;
-      overflow-y: auto;
-    }
+  .task-list {
+    max-height: 400px;
+    overflow-y: auto;
   }
 }
 </style>
