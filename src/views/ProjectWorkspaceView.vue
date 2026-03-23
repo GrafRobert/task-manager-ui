@@ -307,9 +307,9 @@ onMounted(() => {
               </div>
 
               <h4>{{ task.title }}</h4>
-              <pre style="font-size: 10px; color: red; background: #fee2e2; padding: 5px">{{
+              <!-- <pre style="font-size: 10px; color: red; background: #fee2e2; padding: 5px">{{
                 task
-              }}</pre>
+              }}</pre> -->
               <p>{{ task.description }}</p>
 
               <div
