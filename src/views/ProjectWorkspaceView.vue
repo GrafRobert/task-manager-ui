@@ -24,7 +24,15 @@ const newMemberEmail = ref('')
 const members = ref<ProjectMember[]>([])
 const isInviting = ref(false)
 
-// --- FUNCȚII PENTRU MODALUL DE TASK-URI ---
+const showFeedbackModal = ref(false)
+const feedbackText = ref('')
+const pendingMove = ref<{ task: Task; newStatus: string } | null>(null)
+const expandedFeedbacks = ref<Record<number, boolean>>([])
+
+const toggleFeedback = (taskId: number) => {
+  expandedFeedbacks.value[taskId] = !expandedFeedbacks.value[taskId]
+}
+
 const openEditModal = (task: Task) => {
   selectedTask.value = task
   showTaskModal.value = true
@@ -102,6 +110,26 @@ const startDrag = (evt: DragEvent, task: Task) => {
   }
 }
 
+const executeTaskMove = async (task: Task, newStatus: string, feedback: string | null) => {
+  const oldStatus = task.status
+  const oldFeedback = task.feedback || null
+
+  task.status = newStatus
+  task.feedback = feedback
+
+  try {
+    await apiClient.patch(`/projects/${projectId}/tasks/${task.id}`, {
+      status: newStatus,
+      feedback: feedback,
+    })
+  } catch (error) {
+    console.error('Eroare la actualizarea statusului:', error)
+    task.status = oldStatus
+    task.feedback = oldFeedback
+    alert('Nu am putut muta task-ul pe server. Te rugăm să încerci din nou.')
+  }
+}
+
 const onDrop = async (evt: DragEvent, newStatus: string) => {
   const taskIdStr = evt.dataTransfer?.getData('taskId')
   if (!taskIdStr) return
@@ -118,17 +146,41 @@ const onDrop = async (evt: DragEvent, newStatus: string) => {
     }
 
     const oldStatus = task.status
-    task.status = newStatus
-    try {
-      await apiClient.patch(`/projects/${projectId}/tasks/${taskId}`, {
-        status: newStatus,
-      })
-    } catch (error) {
-      console.error('Eroare la actualizarea statusului:', error)
-      task.status = oldStatus
-      alert('Nu am putut muta task-ul pe server. Te rugăm să încerci din nou.')
+
+    if (oldStatus === 'TESTING' && newStatus === 'TODO') {
+      pendingMove.value = { task, newStatus }
+      feedbackText.value = ''
+      showFeedbackModal.value = true
+      return
     }
+
+    let noulFeedback = task.feedback || null
+
+    if (newStatus === 'TESTING') {
+      noulFeedback = null
+    }
+
+    await executeTaskMove(task, newStatus, noulFeedback)
   }
+}
+
+const confirmFeedback = async () => {
+  if (!pendingMove.value) return
+  if (!feedbackText.value.trim()) {
+    alert('Te rog să introduci un motiv pentru care întorci task-ul.')
+    return
+  }
+
+  const { task, newStatus } = pendingMove.value
+  showFeedbackModal.value = false
+  pendingMove.value = null
+
+  await executeTaskMove(task, newStatus, feedbackText.value)
+}
+
+const cancelFeedback = () => {
+  showFeedbackModal.value = false
+  pendingMove.value = null
 }
 
 const deleteTask = async (taskId: number) => {
@@ -243,6 +295,25 @@ onMounted(() => {
               <h4>{{ task.title }}</h4>
               <p>{{ task.description }}</p>
 
+              <div
+                v-if="task.feedback"
+                class="feedback-badge"
+                :class="{ expanded: expandedFeedbacks[task.id] }"
+              >
+                <span class="feedback-icon">⚠️</span>
+                <div class="feedback-content">
+                  <div class="feedback-header-inline">
+                    <strong>Task Respins</strong>
+                    <button @click.stop="toggleFeedback(task.id)" class="toggle-feedback-btn">
+                      {{ expandedFeedbacks[task.id] ? 'Restrânge' : 'Vezi tot' }}
+                    </button>
+                  </div>
+                  <p class="feedback-text" :class="{ expanded: expandedFeedbacks[task.id] }">
+                    {{ task.feedback }}
+                  </p>
+                </div>
+              </div>
+
               <div class="card-footer" v-if="task.assignee_name">
                 <span class="assignee">👤 {{ task.assignee_name }}</span>
               </div>
@@ -299,6 +370,25 @@ onMounted(() => {
 
               <h4>{{ task.title }}</h4>
               <p>{{ task.description }}</p>
+
+              <div
+                v-if="task.feedback"
+                class="feedback-badge"
+                :class="{ expanded: expandedFeedbacks[task.id] }"
+              >
+                <span class="feedback-icon">⚠️</span>
+                <div class="feedback-content">
+                  <div class="feedback-header-inline">
+                    <strong>Task Respins</strong>
+                    <button @click.stop="toggleFeedback(task.id)" class="toggle-feedback-btn">
+                      {{ expandedFeedbacks[task.id] ? 'Restrânge' : 'Vezi tot' }}
+                    </button>
+                  </div>
+                  <p class="feedback-text" :class="{ expanded: expandedFeedbacks[task.id] }">
+                    {{ task.feedback }}
+                  </p>
+                </div>
+              </div>
 
               <div class="card-footer" v-if="task.assignee_name">
                 <span class="assignee">👤 {{ task.assignee_name }}</span>
@@ -357,6 +447,25 @@ onMounted(() => {
               <h4>{{ task.title }}</h4>
               <p>{{ task.description }}</p>
 
+              <div
+                v-if="task.feedback"
+                class="feedback-badge"
+                :class="{ expanded: expandedFeedbacks[task.id] }"
+              >
+                <span class="feedback-icon">⚠️</span>
+                <div class="feedback-content">
+                  <div class="feedback-header-inline">
+                    <strong>Task Respins</strong>
+                    <button @click.stop="toggleFeedback(task.id)" class="toggle-feedback-btn">
+                      {{ expandedFeedbacks[task.id] ? 'Restrânge' : 'Vezi tot' }}
+                    </button>
+                  </div>
+                  <p class="feedback-text" :class="{ expanded: expandedFeedbacks[task.id] }">
+                    {{ task.feedback }}
+                  </p>
+                </div>
+              </div>
+
               <div class="card-footer" v-if="task.assignee_name">
                 <span class="assignee">👤 {{ task.assignee_name }}</span>
               </div>
@@ -414,6 +523,25 @@ onMounted(() => {
               <h4>{{ task.title }}</h4>
               <p>{{ task.description }}</p>
 
+              <div
+                v-if="task.feedback"
+                class="feedback-badge"
+                :class="{ expanded: expandedFeedbacks[task.id] }"
+              >
+                <span class="feedback-icon">⚠️</span>
+                <div class="feedback-content">
+                  <div class="feedback-header-inline">
+                    <strong>Task Respins</strong>
+                    <button @click.stop="toggleFeedback(task.id)" class="toggle-feedback-btn">
+                      {{ expandedFeedbacks[task.id] ? 'Restrânge' : 'Vezi tot' }}
+                    </button>
+                  </div>
+                  <p class="feedback-text" :class="{ expanded: expandedFeedbacks[task.id] }">
+                    {{ task.feedback }}
+                  </p>
+                </div>
+              </div>
+
               <div class="card-footer" v-if="task.assignee_name">
                 <span class="assignee">👤 {{ task.assignee_name }}</span>
               </div>
@@ -430,6 +558,34 @@ onMounted(() => {
             @saved="onTaskSaved"
             @cancel="closeTaskModal"
           />
+        </div>
+      </div>
+
+      <div v-if="showFeedbackModal" class="modal-overlay" @click.self="cancelFeedback">
+        <div class="modal-content feedback-modal">
+          <div class="feedback-header">
+            <div class="warning-icon-wrapper">
+              <span class="warning-icon">⚠️</span>
+            </div>
+            <h3 class="feedback-title">Task Respins</h3>
+          </div>
+
+          <p class="feedback-subtitle">
+            Te rugăm să descrii problema găsită pentru ca programatorul să știe exact ce are de
+            reparat.
+          </p>
+
+          <textarea
+            v-model="feedbackText"
+            class="feedback-textarea"
+            rows="4"
+            placeholder="Ex: Butonul de login nu reacționează pe varianta de mobil..."
+          ></textarea>
+
+          <div class="form-actions">
+            <button class="cancel-btn" @click="cancelFeedback">Anulează</button>
+            <button class="danger-btn" @click="confirmFeedback">Trimite înapoi</button>
+          </div>
         </div>
       </div>
 
@@ -964,5 +1120,204 @@ onMounted(() => {
     max-height: 400px;
     overflow-y: auto;
   }
+}
+
+/* --- STILURI MODAL FEEDBACK TESTER --- */
+
+.feedback-modal {
+  max-width: 480px; /* Un pic mai lat pentru a lăsa textul să respire */
+  padding: 2rem;
+}
+
+.feedback-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.warning-icon-wrapper {
+  background-color: #fee2e2; /* Un roșu foarte pal */
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%; /* Face iconița rotundă perfect */
+  border: 4px solid #fef2f2;
+}
+
+.warning-icon {
+  font-size: 1.3rem;
+}
+
+.feedback-title {
+  color: #b91c1c; /* Un roșu închis, profi */
+  font-size: 1.4rem;
+  margin: 0;
+  font-weight: 700;
+}
+
+.feedback-subtitle {
+  color: #64748b;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+  padding-left: 0.2rem;
+}
+
+.feedback-textarea {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px; /* Mai rotunjit, modern */
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: #334155;
+  background-color: #f8fafc;
+  resize: vertical;
+  min-height: 100px;
+  transition: all 0.25s ease;
+  box-sizing: border-box;
+}
+
+/* Efectul de Focus când dai click să scrii */
+.feedback-textarea:focus {
+  outline: none;
+  border-color: #ef4444; /* Roșu la selecție */
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15); /* Un halo subtil */
+}
+
+.feedback-textarea::placeholder {
+  color: #94a3b8;
+}
+
+/* Butonul de respingere (Roșu) */
+.danger-btn {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);
+}
+
+.danger-btn:hover {
+  background-color: #dc2626;
+  transform: translateY(-2px); /* Se ridică puțin la hover */
+  box-shadow: 0 6px 8px -1px rgba(239, 68, 68, 0.3);
+}
+
+.danger-btn:active {
+  transform: translateY(0); /* Coboară când faci click efectiv */
+}
+
+/* Butonul de Anulare (Secundar / Gri) */
+.cancel-btn {
+  background-color: transparent;
+  color: #64748b; /* Un gri elegant */
+  border: 2px solid #e2e8f0; /* O margine subtilă, dar prezentă */
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px; /* Exact aceeași rotunjire ca butonul roșu */
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.cancel-btn:hover {
+  background-color: #f8fafc; /* Se luminează foarte puțin la hover */
+  color: #0f172a; /* Textul devine mai închis/vizibil */
+  border-color: #cbd5e1; /* Marginea se conturează mai bine */
+}
+
+.cancel-btn:active {
+  background-color: #f1f5f9; /* Efect de apăsare fizică */
+  transform: translateY(1px);
+}
+
+/* --- STILURI MODIFICATE PENTRU FEEDBACK ACORDEON --- */
+.feedback-badge {
+  display: flex;
+  gap: 0.5rem;
+  background-color: #fee2e2;
+  border-left: 4px solid #ef4444;
+  padding: 0.6rem 0.75rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+  border-radius: 6px;
+  position: relative; /* Pentru a poziționa efectul de fade */
+  transition: all 0.3s ease-in-out; /* Animație fină la expandare */
+}
+
+/* Când e expandat, scoatem limitarea de înălțime a bazei */
+.feedback-badge.expanded {
+  padding-bottom: 0.6rem;
+}
+
+.feedback-header-inline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.toggle-feedback-btn {
+  background: transparent;
+  border: none;
+  color: #ef4444; /* Roșu ca eticheta */
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.toggle-feedback-btn:hover {
+  text-decoration: underline;
+}
+
+.feedback-text {
+  color: #7f1d1d;
+  font-size: 0.85rem;
+  margin: 0;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+
+  /* --- CODUL MAGIC DE TĂIERE A TEXTULUI --- */
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Arată maximum 2 rânduri implicit */
+  -webkit-box-orient: vertical;
+  overflow: hidden; /* Ascunde restul */
+  text-overflow: ellipsis; /* Pune puncte puncte (...) */
+
+  position: relative;
+  transition: max-height 0.3s ease;
+}
+
+/* --- CÂND TEXTUL E EXPANDAT --- */
+.feedback-text.expanded {
+  display: block; /* Dezactivăm tăierea automată a rândurilor */
+  overflow: visible;
+  -webkit-line-clamp: unset; /* Scoatem limita de 2 rânduri */
+  max-height: 1000px; /* O înălțime suficient de mare pentru orice text */
+}
+
+/* Efectul opțional de fade-out când e restrâns (arata mai bine textul tăiat) */
+.feedback-text:not(.expanded)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 15px;
+  background: linear-gradient(to bottom, rgba(254, 226, 226, 0), rgba(254, 226, 226, 1));
 }
 </style>

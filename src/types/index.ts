@@ -28,6 +28,7 @@ export interface Task {
 
   assigned_to?: string | number | null
   assignee_name?: string
+  feedback?: string | null
 }
 
 //tabele de legatura
