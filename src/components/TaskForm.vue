@@ -41,6 +41,7 @@ const saveTask = async () => {
       title: taskTitle.value,
       description: taskDescription.value,
       priority: taskPriority.value,
+      assignee_id: taskAssignedTo.value || null,
       assigned_to: taskAssignedTo.value || null,
       status: props.task?.status || 'TODO',
     }
@@ -95,18 +96,25 @@ const saveTask = async () => {
 
         <div class="input-group half-width">
           <label>Asignat lui</label>
-          <select v-model="taskAssignedTo">
-            <option value="">-- Neasignat --</option>
+          <select id="assignee" v-model="taskAssignedTo" class="form-select">
+            <option :value="null">Neasignat</option>
 
             <option
               v-for="member in members"
-              :key="member.user_id || member.user_id"
-              :value="member.user_id || member.user_id || member.user?.id"
+              :key="member.id || member.user_id || member.user?.id || Math.random()"
+              :value="member.user_id || member.id || member.user?.id"
             >
-              {{ member.name || member.user?.name || 'Fără nume' }}
-              ({{ member.email || member.user?.email || 'Fără email' }})
+              {{
+                member.user?.name ||
+                member.name ||
+                member.user?.email ||
+                member.email ||
+                'Coleg anonim'
+              }}
             </option>
           </select>
+
+          <!-- <small style="color: red; font-weight: bold"> ID Selectat: {{ taskAssignedTo }} </small> -->
         </div>
       </div>
 

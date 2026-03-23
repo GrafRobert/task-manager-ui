@@ -47,7 +47,20 @@ const closeTaskModal = () => {
   showTaskModal.value = false
   selectedTask.value = null
 }
-// ------------------------------------------
+
+const getAssigneeName = (userId: number | string | null) => {
+  if (!userId) return null
+
+  const member = members.value.find(
+    (m) => m.id == userId || m.user_id == userId || m.user?.id == userId,
+  )
+
+  if (member) {
+    return member.user?.name || member.name || member.user?.email || member.email || 'Coleg'
+  }
+
+  return 'Necunoscut'
+}
 
 const fetchTasks = async () => {
   try {
@@ -293,6 +306,9 @@ onMounted(() => {
               </div>
 
               <h4>{{ task.title }}</h4>
+              <!-- <pre style="font-size: 10px; color: red; background: #fee2e2; padding: 5px">{{
+                task
+              }}</pre> -->
               <p>{{ task.description }}</p>
 
               <div
@@ -314,8 +330,8 @@ onMounted(() => {
                 </div>
               </div>
 
-              <div class="card-footer" v-if="task.assignee_name">
-                <span class="assignee">👤 {{ task.assignee_name }}</span>
+              <div class="card-footer" v-if="task.assigned_to">
+                <span class="assignee">👤 {{ getAssigneeName(task.assigned_to) }}</span>
               </div>
             </div>
           </TransitionGroup>
