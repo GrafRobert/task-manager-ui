@@ -100,8 +100,8 @@ const saveTask = async () => {
 
             <option
               v-for="member in members"
-              :key="member.user_id || member.id"
-              :value="member.user_id || member.id || member.user?.id"
+              :key="member.user_id || member.user_id"
+              :value="member.user_id || member.user_id || member.user?.id"
             >
               {{ member.name || member.user?.name || 'Fără nume' }}
               ({{ member.email || member.user?.email || 'Fără email' }})
