@@ -18,6 +18,10 @@ const taskAssignedTo = ref(props.task?.assigned_to || '')
 const members = ref<ProjectMember[]>([])
 const isSubmitting = ref(false)
 
+const getSafeId = (m: any) => {
+  return m.id || m.user_id || m.user?.id
+}
+
 const fetchMembers = async () => {
   try {
     const response = await apiClient.get(`/projects/${props.projectId}/members`)
@@ -99,11 +103,7 @@ const saveTask = async () => {
           <select id="assignee" v-model="taskAssignedTo" class="form-select">
             <option :value="null">Neasignat</option>
 
-            <option
-              v-for="member in members"
-              :key="member.id || member.user_id || member.user?.id || Math.random()"
-              :value="member.user_id || member.id || member.user?.id"
-            >
+            <option v-for="member in members" :key="getSafeId(member)" :value="getSafeId(member)">
               {{
                 member.user?.name ||
                 member.name ||

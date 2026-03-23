@@ -51,8 +51,9 @@ const closeTaskModal = () => {
 const getAssigneeName = (userId: number | string | null) => {
   if (!userId) return null
 
+  // Am pus ': any' ca să putem căuta după 'm.id' fără să primim eroare pe Vercel
   const member = members.value.find(
-    (m) => m.id == userId || m.user_id == userId || m.user?.id == userId,
+    (m: any) => m.id == userId || m.user_id == userId || m.user?.id == userId,
   )
 
   if (member) {
@@ -306,9 +307,9 @@ onMounted(() => {
               </div>
 
               <h4>{{ task.title }}</h4>
-              <!-- <pre style="font-size: 10px; color: red; background: #fee2e2; padding: 5px">{{
+              <pre style="font-size: 10px; color: red; background: #fee2e2; padding: 5px">{{
                 task
-              }}</pre> -->
+              }}</pre>
               <p>{{ task.description }}</p>
 
               <div
